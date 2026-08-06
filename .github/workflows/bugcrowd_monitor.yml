@@ -8,6 +8,8 @@ on:
 jobs:
   monitor:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # منح صلاحيات الكتابة لمنع خطأ Permission Denied أثناء الـ Push
 
     steps:
     - name: Checkout Repository
@@ -33,6 +35,16 @@ jobs:
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action Bot"
-        git add previous_scopes.json
-        git diff-index --quiet HEAD || git commit -m "chore: update bugcrowd target state [skip ci]"
-        git push
+        
+        # التحقق من وجود الملف وتغيره قبل الـ Commit لتجنب إخفاق الـ Workflow
+        if [ -f previous_scopes.json ]; then
+          git add previous_scopes.json
+          if ! git diff --staged --quiet; then
+            git commit -m "chore: update bugcrowd target state [skip ci]"
+            git push
+          else
+            echo "No changes detected in scope state."
+          fi
+        else
+          echo "previous_scopes.json was not generated."
+        fi
