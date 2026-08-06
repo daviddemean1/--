@@ -2,14 +2,14 @@ name: Bugcrowd Scope Monitor
 
 on:
   schedule:
-    - cron: '0 */6 * * *' # Run every 6 hours
-  workflow_dispatch: # Allows manual trigger from GitHub UI
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
 
 jobs:
   monitor:
     runs-on: ubuntu-latest
     permissions:
-      contents: write # منح صلاحيات الكتابة لمنع خطأ Permission Denied أثناء الـ Push
+      contents: write
 
     steps:
     - name: Checkout Repository
@@ -36,7 +36,6 @@ jobs:
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action Bot"
         
-        # التحقق من وجود الملف وتغيره قبل الـ Commit لتجنب إخفاق الـ Workflow
         if [ -f previous_scopes.json ]; then
           git add previous_scopes.json
           if ! git diff --staged --quiet; then
